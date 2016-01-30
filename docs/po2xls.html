@@ -31,62 +31,76 @@
             </div>
             
             <div class="content"><div class='highlight'><pre>(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
-<span class="hljs-meta">  'use strict'</span>;
-  <span class="hljs-keyword">var</span> Excelbuilder, Fs, Xlsx, Yargs, should;
+  <span class="hljs-keyword">var</span> Excelbuilder, Fs, Mkdirp, Path, Po2json, Po2xls, self;
 
   <span class="hljs-built_in">require</span>(<span class="hljs-string">'source-map-support'</span>).install();
 
-  should = <span class="hljs-built_in">require</span>(<span class="hljs-string">'should'</span>);
-
   Excelbuilder = <span class="hljs-built_in">require</span>(<span class="hljs-string">'msexcel-builder'</span>);
 
-  Yargs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'yargs'</span>);
+  Fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">"fs"</span>);
 
-  Fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'fs'</span>);
+  Po2json = <span class="hljs-built_in">require</span>(<span class="hljs-string">'po2json'</span>);
 
-  Xlsx = <span class="hljs-built_in">require</span>(<span class="hljs-string">'xlsx'</span>);
+  Path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'path'</span>);
 
-  describe(<span class="hljs-string">'Create Po2xls class'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
-    <span class="hljs-keyword">var</span> Po2xls;
-    Po2xls = <span class="hljs-built_in">require</span>(<span class="hljs-string">'../../lib/po2xls'</span>);
-    <span class="hljs-keyword">return</span> describe(<span class="hljs-string">'Simple testing'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
-      it(<span class="hljs-string">'Converting'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">done</span>) </span>{
-        <span class="hljs-keyword">var</span> parsed;
-        parsed = Yargs.parse([<span class="hljs-string">'./resources/de.po'</span>, <span class="hljs-string">'--output'</span>, <span class="hljs-string">'./resources/test.xls'</span>]);
-        <span class="hljs-keyword">return</span> Po2xls.start(parsed, <span class="hljs-literal">null</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
-          <span class="hljs-keyword">var</span> err, error;
-          <span class="hljs-keyword">try</span> {
-            Fs.accessSync(<span class="hljs-string">'./resources/test.xls'</span>);
-            <span class="hljs-keyword">return</span> done();
-          } <span class="hljs-keyword">catch</span> (error) {
-            err = error;
-            <span class="hljs-keyword">return</span> <span class="hljs-built_in">console</span>.error(err);
+  Mkdirp = <span class="hljs-built_in">require</span>(<span class="hljs-string">'mkdirp'</span>);
+
+  self = <span class="hljs-literal">null</span>;
+
+  Po2xls = (<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Po2xls</span>(<span class="hljs-params">options, cb</span>) </span>{
+      <span class="hljs-keyword">var</span> dirPath, error, error1, file, fileName, i, index, jsondata, keys, language, len, rows, sheet, val, workbook;
+      self = <span class="hljs-keyword">this</span>;
+      <span class="hljs-keyword">this</span>.options = options || {};
+      <span class="hljs-keyword">this</span>.options.file = options._[<span class="hljs-number">0</span>] || <span class="hljs-string">''</span>;
+      <span class="hljs-keyword">this</span>.options.output = options.output || <span class="hljs-string">'./output.xls'</span>;
+      <span class="hljs-keyword">try</span> {
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Loading file "'</span> + <span class="hljs-keyword">this</span>.options.file + <span class="hljs-string">'"'</span>);
+        file = Fs.readFileSync(<span class="hljs-keyword">this</span>.options.file);
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Parsing...'</span>);
+        jsondata = Po2json.parse(file);
+        language = jsondata[<span class="hljs-string">''</span>].language;
+        keys = <span class="hljs-built_in">Object</span>.keys(jsondata);
+        rows = keys.length - <span class="hljs-number">1</span>;
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'  Detected language: '</span> + language);
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'  Found strings: '</span> + rows);
+        dirPath = Path.dirname(<span class="hljs-keyword">this</span>.options.output);
+        fileName = Path.basename(<span class="hljs-keyword">this</span>.options.output);
+        Mkdirp.sync(dirPath);
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Exporting into XLS file "'</span> + dirPath + <span class="hljs-string">'/'</span> + fileName + <span class="hljs-string">'" ...'</span>);
+        workbook = Excelbuilder.createWorkbook(dirPath, fileName);
+        sheet = workbook.createSheet(language, <span class="hljs-number">2</span>, rows);
+        <span class="hljs-keyword">for</span> (index = i = <span class="hljs-number">0</span>, len = keys.length; i &lt; len; index = ++i) {
+          val = keys[index];
+          <span class="hljs-keyword">if</span> (index &gt; <span class="hljs-number">0</span>) {
+            sheet.set(<span class="hljs-number">1</span>, index, val);
+            sheet.set(<span class="hljs-number">2</span>, index, jsondata[val][<span class="hljs-number">1</span>]);
           }
+        }
+        workbook.save(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+          <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Done.'</span>);
+          <span class="hljs-keyword">return</span> cb();
         });
-      });
-      <span class="hljs-keyword">return</span> it(<span class="hljs-string">'Check converted file'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">done</span>) </span>{
-        <span class="hljs-keyword">var</span> address_of_cell, first_sheet_name, workbook, worksheet;
-        workbook = Xlsx.readFile(<span class="hljs-string">'./resources/test.xls'</span>);
-        first_sheet_name = workbook.SheetNames[<span class="hljs-number">0</span>];
-        address_of_cell = <span class="hljs-string">'A1'</span>;
-        worksheet = workbook.Sheets[first_sheet_name];
-        worksheet[<span class="hljs-string">'A1'</span>].v.should.be.exactly(<span class="hljs-string">"Firstname"</span>);
-        worksheet[<span class="hljs-string">'A2'</span>].v.should.be.exactly(<span class="hljs-string">"Lastname"</span>);
-        worksheet[<span class="hljs-string">'A3'</span>].v.should.be.exactly(<span class="hljs-string">"Password"</span>);
-        worksheet[<span class="hljs-string">'A4'</span>].v.should.be.exactly(<span class="hljs-string">"Send"</span>);
-        worksheet[<span class="hljs-string">'A5'</span>].v.should.be.exactly(<span class="hljs-string">"Yes"</span>);
-        worksheet[<span class="hljs-string">'A6'</span>].v.should.be.exactly(<span class="hljs-string">"No"</span>);
-        worksheet[<span class="hljs-string">'B1'</span>].v.should.be.exactly(<span class="hljs-string">"Vorname"</span>);
-        worksheet[<span class="hljs-string">'B2'</span>].v.should.be.exactly(<span class="hljs-string">"Nachname"</span>);
-        worksheet[<span class="hljs-string">'B3'</span>].v.should.be.exactly(<span class="hljs-string">"Passwort"</span>);
-        worksheet[<span class="hljs-string">'B4'</span>].v.should.be.exactly(<span class="hljs-string">"Senden"</span>);
-        worksheet[<span class="hljs-string">'B5'</span>].v.should.be.exactly(<span class="hljs-string">"Ja"</span>);
-        worksheet[<span class="hljs-string">'B6'</span>].v.should.be.exactly(<span class="hljs-string">"Nein"</span>);
-        Fs.unlinkSync(<span class="hljs-string">'./resources/test.xls'</span>);
-        <span class="hljs-keyword">return</span> done();
-      });
-    });
-  });
+      } <span class="hljs-keyword">catch</span> (error1) {
+        error = error1;
+        <span class="hljs-keyword">throw</span> error;
+      }
+    }
+
+    Po2xls.start = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">argv, exit, cb</span>) </span>{
+      <span class="hljs-keyword">this</span>.argv = argv;
+      <span class="hljs-keyword">this</span>.exit = exit;
+      <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.instance == <span class="hljs-literal">null</span>) {
+        <span class="hljs-keyword">this</span>.instance = <span class="hljs-keyword">new</span> Po2xls(<span class="hljs-keyword">this</span>.argv, cb);
+      }
+      <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    };
+
+    <span class="hljs-keyword">return</span> Po2xls;
+
+  })();
+
+  <span class="hljs-built_in">module</span>.exports = Po2xls;
 
 }).call(<span class="hljs-keyword">this</span>);</pre></div></div>
             
