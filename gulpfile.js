@@ -43,6 +43,7 @@ gulp.task('test',['tests']);
 gulp.task('tests', ['default'], function () {
     return gulp.src(paths.scripts.out + '/**/*.js')
             .pipe(istanbul())
+            .pipe(istanbul.hookRequire())
             .on('finish', function () {
                 gulp.src(paths.tests.out + '/*.js', {read: false})
                         .pipe(mocha({

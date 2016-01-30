@@ -1,6 +1,7 @@
 
 Easy...
 
+    require('source-map-support').install()
     Excelbuilder = require 'msexcel-builder'
     Fs = require "fs"
     Po2json = require 'po2json'
