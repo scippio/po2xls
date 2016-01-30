@@ -27,8 +27,6 @@
             it('Check converted file', (done) ->
                 workbook = Xlsx.readFile('./resources/test.xls')
                 first_sheet_name = workbook.SheetNames[0]
-                address_of_cell = 'A1'
-
                 worksheet = workbook.Sheets[first_sheet_name]
 
                 worksheet['A1'].v.should.be.exactly("Firstname")

@@ -2,6 +2,7 @@ Converting GetText PO file into XLS where first column is for key strings and se
 
 Travis: [![Build Status](https://travis-ci.org/scippio/po2xls.svg?branch=master)](https://travis-ci.org/scippio/po2xls)
 Wercker: [![wercker status](https://app.wercker.com/status/8c32f44a685ddd15303f739479636291/s/master "wercker status")](https://app.wercker.com/project/bykey/8c32f44a685ddd15303f739479636291)
+AppVeyor: [![Build status](https://ci.appveyor.com/api/projects/status/5ur1wq3nxxhlareb?svg=true)](https://ci.appveyor.com/project/scippio/po2xls)
 
 Coveralls: [![Coverage Status](https://coveralls.io/repos/github/scippio/po2xls/badge.svg?branch=master)](https://coveralls.io/github/scippio/po2xls?branch=master)
 Code climate: [![Code Climate](https://codeclimate.com/github/scippio/po2xls/badges/gpa.svg)](https://codeclimate.com/github/scippio/po2xls)
