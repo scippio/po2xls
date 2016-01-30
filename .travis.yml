@@ -7,4 +7,4 @@ addons:
         secure:
 after_script:
   - cat coverage/lcov.info | coveralls --verbose
-  - cat coverage/lcov.info | codeclimate
+  - CODECLIMATE_REPO_TOKEN=3b0e435da10cc230c55555e338ad81a182818080c48491e366689f4534b8164d codeclimate-test-reporter < coverage/lcov.info
