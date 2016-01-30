@@ -1,6 +1,4 @@
 
-console.log('PYCO: '+argv);
-
 var po2xls = require('./lib/po2xls'),
     argv = require('yargs')
     .usage('Usage: $0 <file>')
