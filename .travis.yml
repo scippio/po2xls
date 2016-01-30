@@ -1,0 +1,10 @@
+language: node_js
+node_js:
+- 0.1
+addons:
+  code_climate:
+    repo_token:
+        secure: 
+after_script:
+  - cat coverage/lcov.info | coveralls --verbose
+  - cat coverage/lcov.info | codeclimate
